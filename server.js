@@ -8,7 +8,7 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 
 app.get('/proxy', async (req, res) => {
-  const url = req.query.url;
+  let url = req.query.url;
   console.log('Incoming request to /proxy');
   console.log('Requested URL:', url);
   if (!url) {
@@ -17,10 +17,12 @@ app.get('/proxy', async (req, res) => {
   }
 
   try {
-    // Ensure the URL is properly encoded to handle special characters
-    const encodedUrl = encodeURI(url);
-    console.log('Fetching from TMDb:', encodedUrl);
-    const response = await fetch(encodedUrl, {
+    // Decode URL to prevent double-encoding issues
+    url = decodeURIComponent(url);
+    console.log('Decoded URL:', url);
+    // Fetch from TMDB
+    console.log('Fetching from TMDb:', url);
+    const response = await fetch(url, {
       headers: {
         'Accept': 'application/json'
       }
