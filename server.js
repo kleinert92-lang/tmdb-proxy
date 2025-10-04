@@ -8,17 +8,19 @@ const port = process.env.PORT || 3000;
 app.use(cors());
 
 app.get('/proxy', async (req, res) => {
-  const url = req.query.url;
+  const { query, api_key, language, include_adult } = req.query;
   console.log('Incoming request to /proxy');
-  console.log('Requested URL:', url);
-  if (!url) {
-    console.log('Missing URL parameter');
-    return res.status(400).json({ error: 'Missing URL parameter' });
+  console.log('Query parameters:', { query, api_key, language, include_adult });
+
+  if (!api_key || !query) {
+    console.log('Missing api_key or query parameter');
+    return res.status(400).json({ error: 'Missing api_key or query parameter' });
   }
 
   try {
-    console.log('Fetching from TMDb:', url);
-    const response = await axios.get(url, {
+    const tmdbUrl = `https://api.themoviedb.org/3/search/multi?api_key=${api_key}&query=${encodeURIComponent(query)}&language=${language || 'en-US'}&include_adult=${include_adult || 'false'}`;
+    console.log('Fetching from TMDb:', tmdbUrl);
+    const response = await axios.get(tmdbUrl, {
       headers: {
         'Accept': 'application/json'
       }
